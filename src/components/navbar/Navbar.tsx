@@ -18,7 +18,7 @@ const Navbar: React.FC = () => {
 
   return (
     <>
-      <nav className="flex items-center justify-between py-2 px-3 bg-white shadow">
+      <nav className="flex items-center justify-between py-2 px-3 bg-white shadow sticky top-0 z-20">
         <div className="text-xl font-semibold">Dashboard</div>
 
         <div className="flex items-center gap-6">
@@ -26,7 +26,7 @@ const Navbar: React.FC = () => {
             {/* Date Icon */}
             <AiOutlineCalendar className="text-lg text-gray-600" />
 
-            <div className="">
+            <div>
               <div className="text-xs font-semibold text-gray-600">
                 Last 7 Days: Jan 14 - Jan 20, 2024
               </div>
