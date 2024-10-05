@@ -1,8 +1,8 @@
 import React from "react";
 import Navbar from "../components/navbar/Navbar";
 import SideBar from "../components/siderBar/SideBar";
-import LineChart from "../components/performance_chart/index";
-
+import PerformanceChart from "../components/performance_chart/index";
+import Heatmap from "../components/heat_map_table/index";
 const Dashboard: React.FC = () => {
   return (
     <div>
@@ -13,8 +13,8 @@ const Dashboard: React.FC = () => {
         <div className="w-full ">
           <Navbar />
           <div className="w-full bg-gray-100 rounded-lg">
-            <LineChart />
-            <LineChart />
+            <PerformanceChart />
+            <Heatmap />
           </div>
         </div>
       </div>

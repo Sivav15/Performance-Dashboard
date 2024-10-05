@@ -6,7 +6,6 @@ const useOnClickOutside = (
 ): void => {
   useEffect(() => {
     const listener = (event: MouseEvent | TouchEvent) => {
-      // Check if the HTML element exists and if the click is outside of it
       if (!ref.current || ref.current.contains(event.target as Node)) {
         return;
       }
@@ -15,10 +14,11 @@ const useOnClickOutside = (
 
     document.addEventListener("mousedown", listener);
     document.addEventListener("touchstart", listener);
-
+    // document.addEventListener("scroll", listener);
     return () => {
       document.removeEventListener("mousedown", listener);
       document.removeEventListener("touchstart", listener);
+      //   document.removeEventListener("scroll", listener);
     };
   }, [ref, handler]);
 };
