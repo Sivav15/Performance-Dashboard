@@ -7,14 +7,18 @@ const Dashboard: React.FC = () => {
   return (
     <div>
       <div className="flex">
-        <div className="w-16">
+        <div className="w-16 bg-black">
           <SideBar />
         </div>
-        <div className="w-full ">
+        <div className="w-full bg-gray-100">
           <Navbar />
-          <div className="w-full bg-gray-100 rounded-lg">
-            <PerformanceChart />
-            <Heatmap />
+          <div className="px-2 py-4">
+            <div className="mb-4">
+              <PerformanceChart />
+            </div>
+            <div className="">
+              <Heatmap />
+            </div>
           </div>
         </div>
       </div>

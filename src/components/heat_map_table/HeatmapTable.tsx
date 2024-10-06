@@ -220,26 +220,46 @@ const heatMapData: DayData[] = [
 ];
 
 // Color generation based on CPM value (₹) for the heatmap cells
-const getColor = (cpm: string) => {
-  const value = parseFloat(cpm.replace("₹", ""));
-  if (value >= 80) return "bg-blue-500 text-white";
-  if (value >= 60) return "bg-purple-400 text-white";
-  if (value >= 40) return "bg-pink-300 text-black";
-  return "bg-teal-200 text-black";
+const getColorByType = (value: string, type: "Imp" | "Clicks" | "CPM") => {
+  const numericValue = parseFloat(value.replace(/[₹,]/g, ""));
+
+  if (type === "CPM") {
+    if (numericValue >= 80) return "bg-[#AFEFFF] text-[#197DB5]";
+    if (numericValue >= 60) return "bg-[#E0D8F9] text-[#6A39DB]";
+    if (numericValue >= 40) return "bg-[#FFD7EB] text-[#E156E1]";
+    return "bg-[#CFFAF5] text-[#A75DA1]";
+  }
+
+  if (type === "Imp") {
+    if (numericValue >= 6000000) return "bg-[#E0D8F9] text-[#6A39DB]";
+    if (numericValue >= 5000000) return "bg-[#D8CEF8] text-[#6A39DB]";
+    return "bg-[#D0C3F8] text-[#6A39DB]";
+  }
+
+  if (type === "Clicks") {
+    if (numericValue >= 50000) return "bg-[#AFEFFF] text-[#197DB5]";
+    if (numericValue >= 30000) return "bg-[#FFD7EB] text-[#E156E1]";
+    if (numericValue >= 10000) return "bg-[#FFE2F2] text-[#E156E1]";
+    return "bg-[#CFFAF5] text-black";
+  }
+
+  return "bg-white text-black";
 };
 
 const HeatmapTable: React.FC = () => {
   return (
-    <div className="overflow-auto">
-      <table className="min-w-full table-auto border-collapse border border-gray-200">
-        {/* Table Head */}
+    <div
+      className="w-full overflow-x-auto overflow-y-auto pt-3"
+      style={{ maxWidth: "92vw" }}
+    >
+      <table className="w-full table-auto border-collapse">
         <thead>
           <tr>
-            <th className="border border-gray-300 p-2 text-center">Time</th>
+            <th className="p-2 text-center "></th>
             {heatMapData.map((day, index) => (
               <th
                 key={index}
-                className="border border-gray-300 p-2 text-center"
+                className="text-sm text-gray-500 p-2 text-center min-w-[180px]"
                 colSpan={3}
               >
                 {day.day}
@@ -247,62 +267,68 @@ const HeatmapTable: React.FC = () => {
             ))}
           </tr>
           <tr>
-            <th className="border border-gray-300 p-2 text-center"></th>
+            <th className="p-2 text-center"></th>
             {heatMapData.map((_, index) => (
-              <>
-                <th
-                  key={`cpm-${index}`}
-                  className="border border-gray-300 p-2 text-center"
-                >
-                  CPM
-                </th>
-                <th
-                  key={`clicks-${index}`}
-                  className="border border-gray-300 p-2 text-center"
-                >
+              <React.Fragment key={index}>
+                <th className="text-sm font-semibold p-2 text-center">Imp</th>
+                <th className="text-sm font-semibold p-2 text-center">
                   Clicks
                 </th>
-                <th
-                  key={`imp-${index}`}
-                  className="border border-gray-300 p-2 text-center"
-                >
-                  Imp
-                </th>
-              </>
+                <th className="text-sm font-semibold p-2 text-center">CPM</th>
+              </React.Fragment>
             ))}
           </tr>
         </thead>
 
-        {/* Table Body */}
         <tbody>
           {heatMapData[0].hours.map((_, hourIndex) => (
             <tr key={hourIndex}>
-              <td className="border border-gray-300 p-2 text-center">
+              <td className="p-2 text-sm text-gray-500 text-center">
                 {heatMapData[0].hours[hourIndex].time}
               </td>
               {heatMapData.map((day, dayIndex) => (
-                <>
+                <React.Fragment key={dayIndex}>
                   <td
-                    key={`cpm-${dayIndex}-${hourIndex}`}
-                    className={`border border-gray-300 p-2 text-center ${getColor(
-                      day.hours[hourIndex].cpm
-                    )}`}
+                    key={`imp-${dayIndex}-${hourIndex}`}
+                    className={`p-0 text-sm text-center`}
                   >
-                    {day.hours[hourIndex].cpm}
+                    <div
+                      className={`m-0.5 ${getColorByType(
+                        day.hours[hourIndex].imp.toLocaleString(),
+                        "Imp"
+                      )} px-2 py-1 rounded`}
+                    >
+                      {day.hours[hourIndex].imp.toLocaleString()}
+                    </div>
                   </td>
                   <td
                     key={`clicks-${dayIndex}-${hourIndex}`}
-                    className="border border-gray-300 p-2 text-center"
+                    className={`p-0 text-sm text-center`}
                   >
-                    {day.hours[hourIndex].clicks.toLocaleString()}
+                    <div
+                      className={`m-0.5 ${getColorByType(
+                        day.hours[hourIndex].clicks.toLocaleString(),
+                        "Clicks"
+                      )} px-2 py-1 rounded`}
+                    >
+                      {day.hours[hourIndex].clicks.toLocaleString()}
+                    </div>
                   </td>
+
                   <td
-                    key={`imp-${dayIndex}-${hourIndex}`}
-                    className="border border-gray-300 p-2 text-center"
+                    key={`cpm-${dayIndex}-${hourIndex}`}
+                    className={`p-0 text-sm text-center`}
                   >
-                    {day.hours[hourIndex].imp.toLocaleString()}
+                    <div
+                      className={`m-0.5 ${getColorByType(
+                        day.hours[hourIndex].cpm,
+                        "CPM"
+                      )} px-2 py-1 rounded`}
+                    >
+                      {day.hours[hourIndex].cpm}
+                    </div>
                   </td>
-                </>
+                </React.Fragment>
               ))}
             </tr>
           ))}

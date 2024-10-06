@@ -52,7 +52,7 @@ const data = [
 
 const LineChartComponent: React.FC = () => {
   return (
-    <div className="w-full h-96">
+    <div className="w-full h-96 px-3 py-2">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data}>
           <CartesianGrid
