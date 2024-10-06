@@ -2,13 +2,13 @@
 
 ## Overview
 
-This project is a React-based dashboard application designed to demonstrate modern project architecture, best practices, and essential features for a user-friendly experience. The application includes a login system, a responsive layout with a side menu and top bar, and a main page featuring metrics dropdown, performance line chart, and heat map table.
+This project is a React-based dashboard application designed to demonstrate modern project architecture, best practices, and essential features for a user-friendly experience. The application includes a login system, a layout with a side menu and top bar, and a main page featuring metrics dropdown, performance line chart, and heat map table.
 
 ## Features
 
 - **Project Setup**: Well-structured React project with organized folder architecture.
 - **Login Functionality**: User authentication with form validation and session management.
-- **Post-Login Layout**: Responsive side menu and top bar with a logout button.
+- **Post-Login Layout**: Side menu and top bar with a logout button.
 - **Main Page Features**:
   - Metrics dropdown with multiple selection options.
   - Performance line chart displaying selected metrics.
