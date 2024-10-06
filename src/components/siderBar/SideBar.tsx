@@ -2,8 +2,11 @@ import React from "react";
 import companyLogo from "../../assets/companyLogo.png";
 import dashboard_icon from "../../assets/dashboardIcon.png";
 import Sidebar_1 from "./SiderBar_1";
+import { useNavigate } from "react-router-dom";
 
 const SideBar: React.FC = () => {
+  const navigate = useNavigate();
+
   return (
     <div
       style={{
@@ -32,6 +35,7 @@ const SideBar: React.FC = () => {
         <div
           className="pt-7 flex justify-center w-full"
           style={{ borderTop: "1.8px solid #d1d5db" }}
+          onClick={() => navigate("/dashboard")}
         >
           <img src={dashboard_icon} alt="dashboard icon" width={32} />
         </div>

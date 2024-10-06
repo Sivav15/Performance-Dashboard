@@ -1,51 +1,89 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FaCaretDown } from "react-icons/fa";
 import useOnClickOutside from "../../hooks/useOnClickOutside";
+import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../app/store";
+import { metrics_api } from "../../services/api";
+import { metricsReducer } from "../../features/dashboardSlice";
 
-interface Metrics {
-  Spend: boolean;
-  Revenue: boolean;
-  Impressions: boolean;
-  Clicks: boolean;
-  CPM: boolean;
-  CTR: boolean;
+interface Metric {
+  label: string;
+  code: string;
 }
 
 const Dropdown: React.FC = () => {
   const ref = useRef<null>(null);
+  const { token, X_USER_IDENTITY } = useSelector(
+    (state: RootState) => state.authReducer.auth
+  );
+  const selectedMetrics = useSelector(
+    (state: RootState) => state.dashboardReducer.metrics
+  );
+
+  const dispatch = useDispatch();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   useOnClickOutside(ref, () => setIsOpen(false));
-  const [selectedMetrics, setSelectedMetrics] = useState<Metrics>({
-    Spend: false,
-    Revenue: false,
-    Impressions: false,
-    Clicks: false,
-    CPM: false,
-    CTR: false,
-  });
+  const [metrics, setMetrics] = useState<Metric[]>([]);
+  const [localSelectedMetrics, setLocalSelectedMetrics] =
+    useState<string[]>(selectedMetrics);
+
+  const postDayPartingFilterList = async () => {
+    try {
+      const response = await axios.post(
+        metrics_api,
+        {
+          type: "customizeMetrics",
+        },
+        {
+          headers: {
+            "X-USER-IDENTITY": X_USER_IDENTITY,
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      const fetchedMetrics = response.data.result;
+      setMetrics(fetchedMetrics);
+    } catch (error: any) {
+      console.error(
+        "Error:",
+        error.response ? error.response.data : error.message
+      );
+    }
+  };
+
+  useEffect(() => {
+    if (token && metrics.length === 0) {
+      postDayPartingFilterList();
+    }
+  }, [token]);
 
   const toggleDropdown = (): void => {
     setIsOpen(!isOpen);
   };
 
-  const handleMetricChange = (metric: keyof Metrics): void => {
-    setSelectedMetrics((prev) => ({
-      ...prev,
-      [metric]: !prev[metric],
-    }));
+  const handleMetricChange = (code: string): void => {
+    setLocalSelectedMetrics((prev) =>
+      prev.includes(code)
+        ? prev.filter((metric) => metric !== code)
+        : [...prev, code]
+    );
   };
 
   const handleApply = (): void => {
-    console.log("Selected Metrics:", selectedMetrics);
+    // Dispatch the local selected metrics to the Redux store
+    dispatch(metricsReducer(localSelectedMetrics));
+    console.log("Selected Metrics:", localSelectedMetrics);
     setIsOpen(false);
   };
 
   const handleCancel = (): void => {
+    setLocalSelectedMetrics(selectedMetrics); // Reset local state to selected metrics on cancel
     setIsOpen(false);
   };
 
   return (
-    <div className="relative inline-block text-left">
+    <div className="relative text-left" ref={ref}>
       <button
         onClick={toggleDropdown}
         className="flex items-center px-4 py-2 bg-white border border-gray-300 rounded shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-100"
@@ -54,21 +92,18 @@ const Dropdown: React.FC = () => {
       </button>
 
       {isOpen && (
-        <div
-          className="absolute right-0 mt-2 w-52 bg-white border border-gray-200 rounded shadow-lg z-10"
-          ref={ref}
-        >
-          <ul className="">
-            {Object.keys(selectedMetrics).map((metric) => (
-              <li key={metric} className="flex items-center px-4 py-2">
+        <div className="absolute right-0 mt-2 w-52 bg-white border border-gray-200 rounded shadow-lg z-10">
+          <ul>
+            {metrics.map((metric) => (
+              <li key={metric.code} className="flex items-center px-4 py-2">
                 <input
                   type="checkbox"
-                  checked={selectedMetrics[metric as keyof Metrics]}
-                  onChange={() => handleMetricChange(metric as keyof Metrics)}
+                  checked={localSelectedMetrics.includes(metric.code)}
+                  onChange={() => handleMetricChange(metric.code)}
                   className="form-checkbox text-blue-600 h-4 w-4"
                 />
                 <span className="ml-2 text-sm font-semibold text-gray-700">
-                  {metric}
+                  {metric.label.replace("%", "percent")}
                 </span>
               </li>
             ))}
@@ -83,7 +118,7 @@ const Dropdown: React.FC = () => {
             </button>
             <button
               onClick={handleApply}
-              className="bg-blue-600 font-semibold text-white rounded-md  px-4 py-1 rounded text-sm"
+              className="bg-blue-600 font-semibold text-white rounded-md px-4 py-1 text-sm"
             >
               Apply
             </button>

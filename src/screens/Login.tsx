@@ -3,18 +3,22 @@ import { FaEnvelope, FaLock } from "react-icons/fa";
 import { useFormik, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import axios, { AxiosResponse } from "axios";
-
+import { login_api } from "../services/api";
+import { useDispatch } from "react-redux";
+import useLoadingModal from "../hooks/useLoadingModal";
+import { authReducer } from "../features/authSlice";
+import { useNavigate } from "react-router-dom";
 interface LoginFormValues {
   email: string;
   password: string;
   rememberMe: boolean;
 }
 
-interface LoginResponse {
-  isLoggedInHere: number;
-}
-
 const Login: React.FC = () => {
+  const dispatch = useDispatch();
+  const { showLoading, hideLoading, LoadingModalComponent } = useLoadingModal();
+  const navigate = useNavigate();
+
   const formik = useFormik<LoginFormValues>({
     initialValues: {
       email: "",
@@ -34,20 +38,16 @@ const Login: React.FC = () => {
       { setSubmitting, setFieldError }: FormikHelpers<LoginFormValues>
     ) => {
       try {
+        showLoading();
         const payload = {
           email: values.email,
           password: values.password,
           isLoggedInHere: 0,
         };
 
-        const response: AxiosResponse<LoginResponse> = await axios.post(
-          "https://coreapi.hectorai.live/api/auth/login",
-          payload
-        );
-
-        if (response.status === 200) {
-          console.log("Login successful:", response.data);
-        }
+        const response: any = await axios.post(login_api, payload);
+        dispatch(authReducer(response.data));
+        navigate("/dashboard");
       } catch (error) {
         if (axios.isAxiosError(error) && error.response) {
           console.error("Login error:", error.response.data);
@@ -56,6 +56,7 @@ const Login: React.FC = () => {
           console.error("Unexpected error:", error);
         }
       } finally {
+        hideLoading();
         setSubmitting(false);
       }
     },
@@ -151,6 +152,7 @@ const Login: React.FC = () => {
           </form>
         </div>
       </div>
+      <LoadingModalComponent />
     </div>
   );
 };

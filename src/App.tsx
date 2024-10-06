@@ -8,6 +8,7 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import DashboardLayout from "./layout/DashboardLayout";
+import UserProtectedRoute from "./protected_route/UserProtectedRoute";
 
 const App: React.FC = () => {
   const router = createBrowserRouter([
@@ -21,7 +22,11 @@ const App: React.FC = () => {
     },
     {
       path: "/",
-      element: <DashboardLayout />,
+      element: (
+        <UserProtectedRoute>
+          <DashboardLayout />
+        </UserProtectedRoute>
+      ),
       children: [
         {
           path: "",

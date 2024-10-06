@@ -1,5 +1,5 @@
 // src/components/Navbar.tsx
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   AiOutlineExpand,
   AiOutlineUser,
@@ -8,12 +8,26 @@ import {
 import { IoMoonOutline } from "react-icons/io5";
 import { RiArrowDropDownLine } from "react-icons/ri";
 import UserCard from "./UserCard";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../../app/store";
+import { logoutReducer } from "../../features/authSlice";
+import { useNavigate } from "react-router-dom";
+import useOnClickOutside from "../../hooks/useOnClickOutside";
 
 const Navbar: React.FC = () => {
   const [isCardVisible, setIsCardVisible] = useState<boolean>(false);
+  const { fullName } = useSelector(
+    (state: RootState) => state.authReducer.auth
+  );
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const ref = useRef<null>(null);
+  useOnClickOutside(ref, () => setIsCardVisible(false));
 
   const handleLogout = () => {
-    console.log("User logged out");
+    setIsCardVisible(false);
+    dispatch(logoutReducer());
+    navigate("/");
   };
 
   return (
@@ -42,23 +56,24 @@ const Navbar: React.FC = () => {
 
             <IoMoonOutline className="text-lg text-gray-600 cursor-pointer" />
 
-            <div
-              className="flex"
-              onClick={() => setIsCardVisible(!isCardVisible)}
-            >
-              <AiOutlineUser className="text-lg text-gray-600 cursor-pointer" />
-              <RiArrowDropDownLine className="text-lg text-gray-600" />
+            <div className="relative" ref={ref}>
+              <div
+                className="flex"
+                onClick={() => setIsCardVisible(!isCardVisible)}
+              >
+                <AiOutlineUser className="text-lg text-gray-600 cursor-pointer" />
+                <RiArrowDropDownLine className="text-lg text-gray-600" />
+              </div>
+              <UserCard
+                name={fullName}
+                status="Online"
+                onLogout={handleLogout}
+                isCardVisible={isCardVisible}
+              />
             </div>
           </div>
         </div>
       </nav>
-      <UserCard
-        name="Naveen"
-        status="Online"
-        onLogout={handleLogout}
-        isCardVisible={isCardVisible}
-        setIsCardVisible={setIsCardVisible}
-      />
     </>
   );
 };
