@@ -71,14 +71,13 @@ const Dropdown: React.FC = () => {
   };
 
   const handleApply = (): void => {
-    // Dispatch the local selected metrics to the Redux store
     dispatch(metricsReducer(localSelectedMetrics));
     console.log("Selected Metrics:", localSelectedMetrics);
     setIsOpen(false);
   };
 
   const handleCancel = (): void => {
-    setLocalSelectedMetrics(selectedMetrics); // Reset local state to selected metrics on cancel
+    setLocalSelectedMetrics(selectedMetrics);
     setIsOpen(false);
   };
 

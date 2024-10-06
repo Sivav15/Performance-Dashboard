@@ -1,5 +1,7 @@
 function convertTo12HourFormat(timeString: string): string {
-    const [hours, minutes, seconds] = timeString.split(':');
+    const [hours] = timeString.split(':');
+    
+    
     let hour = parseInt(hours, 10);
     const ampm = hour >= 12 ? 'pm' : 'am';
     hour = hour % 12;

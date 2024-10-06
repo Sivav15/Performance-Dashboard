@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import useLoadingModal from "../../hooks/useLoadingModal";
 import axios from "axios";
 import getColorByType from "../../utils/getColorByType";
 import convertTo12HourFormat from "../../utils/convertTo12HourFormat";
@@ -51,7 +50,7 @@ const HeatmapTable: React.FC = () => {
     try {
       setLoading(true);
       const response = await axios.post(heatmap_list, data, { headers });
-      console.log("Response data:", response.data.result);
+
       setHeatMapData(response.data.result);
     } catch (error: any) {
       console.log(error);

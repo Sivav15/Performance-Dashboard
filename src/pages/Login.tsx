@@ -2,7 +2,7 @@ import React from "react";
 import { FaEnvelope, FaLock } from "react-icons/fa";
 import { useFormik, FormikHelpers } from "formik";
 import * as Yup from "yup";
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 import { login_api } from "../services/api";
 import { useDispatch } from "react-redux";
 import useLoadingModal from "../hooks/useLoadingModal";
