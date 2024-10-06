@@ -1,252 +1,76 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import useLoadingModal from "../../hooks/useLoadingModal";
+import axios from "axios";
+import getColorByType from "../../utils/getColorByType";
+import convertTo12HourFormat from "../../utils/convertTo12HourFormat";
 
-type HourData = {
-  time: string;
-  imp: number;
-  clicks: number;
-  cpm: string;
-};
+interface HourlyData {
+  time_part: string;
+  show: number;
+  Impressions: number;
+  Clicks: number;
+  CPM: number;
+}
 
-type DayData = {
-  day: string;
-  hours: HourData[];
-};
-
-// Sample heat map data (simplified for clarity)
-const heatMapData: DayData[] = [
-  {
-    day: "Sunday",
-    hours: [
-      { time: "12am", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "1am", imp: 5257095, clicks: 31482, cpm: "₹83.31" },
-      { time: "2am", imp: 6328926, clicks: 11406, cpm: "₹13.38" },
-      { time: "3am", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-      { time: "4am", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "5am", imp: 5225709, clicks: 31482, cpm: "₹83.31" },
-      { time: "6am", imp: 6328926, clicks: 11406, cpm: "₹13.38" },
-      { time: "7am", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "8am", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-      { time: "9am", imp: 5225709, clicks: 31482, cpm: "₹83.31" },
-      { time: "10am", imp: 6328926, clicks: 11406, cpm: "₹13.38" },
-      { time: "11am", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "12pm", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-      { time: "1pm", imp: 5225709, clicks: 31482, cpm: "₹83.31" },
-      { time: "2pm", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "3pm", imp: 6328926, clicks: 11406, cpm: "₹13.38" },
-      { time: "4pm", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-      { time: "5pm", imp: 5225709, clicks: 31482, cpm: "₹83.31" },
-      { time: "6pm", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "7pm", imp: 6328926, clicks: 11406, cpm: "₹13.38" },
-      { time: "8pm", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-      { time: "9pm", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "10pm", imp: 5225709, clicks: 31482, cpm: "₹83.31" },
-      { time: "11pm", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-    ],
-  },
-  {
-    day: "Monday",
-    hours: [
-      { time: "12am", imp: 5225709, clicks: 31482, cpm: "₹83.31" },
-      { time: "1am", imp: 4372095, clicks: 11406, cpm: "₹13.38" },
-      { time: "2am", imp: 6328926, clicks: 11406, cpm: "₹13.38" },
-      { time: "3am", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-      { time: "4am", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "5am", imp: 5225709, clicks: 31482, cpm: "₹83.31" },
-      { time: "6am", imp: 6328926, clicks: 11406, cpm: "₹13.38" },
-      { time: "7am", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "8am", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-      { time: "9am", imp: 5225709, clicks: 31482, cpm: "₹83.31" },
-      { time: "10am", imp: 6328926, clicks: 11406, cpm: "₹13.38" },
-      { time: "11am", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "12pm", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-      { time: "1pm", imp: 5225709, clicks: 31482, cpm: "₹83.31" },
-      { time: "2pm", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "3pm", imp: 6328926, clicks: 11406, cpm: "₹13.38" },
-      { time: "4pm", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-      { time: "5pm", imp: 5225709, clicks: 31482, cpm: "₹83.31" },
-      { time: "6pm", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "7pm", imp: 6328926, clicks: 11406, cpm: "₹13.38" },
-      { time: "8pm", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-      { time: "9pm", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "10pm", imp: 5225709, clicks: 31482, cpm: "₹83.31" },
-      { time: "11pm", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-    ],
-  },
-  {
-    day: "Tuesday",
-    hours: [
-      { time: "12am", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "1am", imp: 5257095, clicks: 31482, cpm: "₹83.31" },
-      { time: "2am", imp: 6328926, clicks: 11406, cpm: "₹13.38" },
-      { time: "3am", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-      { time: "4am", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "5am", imp: 5225709, clicks: 31482, cpm: "₹83.31" },
-      { time: "6am", imp: 6328926, clicks: 11406, cpm: "₹13.38" },
-      { time: "7am", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "8am", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-      { time: "9am", imp: 5225709, clicks: 31482, cpm: "₹83.31" },
-      { time: "10am", imp: 6328926, clicks: 11406, cpm: "₹13.38" },
-      { time: "11am", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "12pm", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-      { time: "1pm", imp: 5225709, clicks: 31482, cpm: "₹83.31" },
-      { time: "2pm", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "3pm", imp: 6328926, clicks: 11406, cpm: "₹13.38" },
-      { time: "4pm", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-      { time: "5pm", imp: 5225709, clicks: 31482, cpm: "₹83.31" },
-      { time: "6pm", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "7pm", imp: 6328926, clicks: 11406, cpm: "₹13.38" },
-      { time: "8pm", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-      { time: "9pm", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "10pm", imp: 5225709, clicks: 31482, cpm: "₹83.31" },
-      { time: "11pm", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-    ],
-  },
-  {
-    day: "Wednesday",
-    hours: [
-      { time: "12am", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "1am", imp: 5257095, clicks: 31482, cpm: "₹83.31" },
-      { time: "2am", imp: 6328926, clicks: 11406, cpm: "₹13.38" },
-      { time: "3am", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-      { time: "4am", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "5am", imp: 5225709, clicks: 31482, cpm: "₹83.31" },
-      { time: "6am", imp: 6328926, clicks: 11406, cpm: "₹13.38" },
-      { time: "7am", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "8am", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-      { time: "9am", imp: 5225709, clicks: 31482, cpm: "₹83.31" },
-      { time: "10am", imp: 6328926, clicks: 11406, cpm: "₹13.38" },
-      { time: "11am", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "12pm", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-      { time: "1pm", imp: 5225709, clicks: 31482, cpm: "₹83.31" },
-      { time: "2pm", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "3pm", imp: 6328926, clicks: 11406, cpm: "₹13.38" },
-      { time: "4pm", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-      { time: "5pm", imp: 5225709, clicks: 31482, cpm: "₹83.31" },
-      { time: "6pm", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "7pm", imp: 6328926, clicks: 11406, cpm: "₹13.38" },
-      { time: "8pm", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-      { time: "9pm", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "10pm", imp: 5225709, clicks: 31482, cpm: "₹83.31" },
-      { time: "11pm", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-    ],
-  },
-  {
-    day: "Thursday",
-    hours: [
-      { time: "12am", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "1am", imp: 5257095, clicks: 31482, cpm: "₹83.31" },
-      { time: "2am", imp: 6328926, clicks: 11406, cpm: "₹13.38" },
-      { time: "3am", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-      { time: "4am", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "5am", imp: 5225709, clicks: 31482, cpm: "₹83.31" },
-      { time: "6am", imp: 6328926, clicks: 11406, cpm: "₹13.38" },
-      { time: "7am", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "8am", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-      { time: "9am", imp: 5225709, clicks: 31482, cpm: "₹83.31" },
-      { time: "10am", imp: 6328926, clicks: 11406, cpm: "₹13.38" },
-      { time: "11am", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "12pm", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-      { time: "1pm", imp: 5225709, clicks: 31482, cpm: "₹83.31" },
-      { time: "2pm", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "3pm", imp: 6328926, clicks: 11406, cpm: "₹13.38" },
-      { time: "4pm", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-      { time: "5pm", imp: 5225709, clicks: 31482, cpm: "₹83.31" },
-      { time: "6pm", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "7pm", imp: 6328926, clicks: 11406, cpm: "₹13.38" },
-      { time: "8pm", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-      { time: "9pm", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "10pm", imp: 5225709, clicks: 31482, cpm: "₹83.31" },
-      { time: "11pm", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-    ],
-  },
-  {
-    day: "Friday",
-    hours: [
-      { time: "12am", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "1am", imp: 5257095, clicks: 31482, cpm: "₹83.31" },
-      { time: "2am", imp: 6328926, clicks: 11406, cpm: "₹13.38" },
-      { time: "3am", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-      { time: "4am", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "5am", imp: 5225709, clicks: 31482, cpm: "₹83.31" },
-      { time: "6am", imp: 6328926, clicks: 11406, cpm: "₹13.38" },
-      { time: "7am", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "8am", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-      { time: "9am", imp: 5225709, clicks: 31482, cpm: "₹83.31" },
-      { time: "10am", imp: 6328926, clicks: 11406, cpm: "₹13.38" },
-      { time: "11am", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "12pm", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-      { time: "1pm", imp: 5225709, clicks: 31482, cpm: "₹83.31" },
-      { time: "2pm", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "3pm", imp: 6328926, clicks: 11406, cpm: "₹13.38" },
-      { time: "4pm", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-      { time: "5pm", imp: 5225709, clicks: 31482, cpm: "₹83.31" },
-      { time: "6pm", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "7pm", imp: 6328926, clicks: 11406, cpm: "₹13.38" },
-      { time: "8pm", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-      { time: "9pm", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "10pm", imp: 5225709, clicks: 31482, cpm: "₹83.31" },
-      { time: "11pm", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-    ],
-  },
-  {
-    day: "Saturday",
-    hours: [
-      { time: "12am", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "1am", imp: 5257095, clicks: 31482, cpm: "₹83.31" },
-      { time: "2am", imp: 6328926, clicks: 11406, cpm: "₹13.38" },
-      { time: "3am", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-      { time: "4am", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "5am", imp: 5225709, clicks: 31482, cpm: "₹83.31" },
-      { time: "6am", imp: 6328926, clicks: 11406, cpm: "₹13.38" },
-      { time: "7am", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "8am", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-      { time: "9am", imp: 5225709, clicks: 31482, cpm: "₹83.31" },
-      { time: "10am", imp: 6328926, clicks: 11406, cpm: "₹13.38" },
-      { time: "11am", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "12pm", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-      { time: "1pm", imp: 5225709, clicks: 31482, cpm: "₹83.31" },
-      { time: "2pm", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "3pm", imp: 6328926, clicks: 11406, cpm: "₹13.38" },
-      { time: "4pm", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-      { time: "5pm", imp: 5225709, clicks: 31482, cpm: "₹83.31" },
-      { time: "6pm", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "7pm", imp: 6328926, clicks: 11406, cpm: "₹13.38" },
-      { time: "8pm", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-      { time: "9pm", imp: 4372095, clicks: 27494, cpm: "₹64.42" },
-      { time: "10pm", imp: 5225709, clicks: 31482, cpm: "₹83.31" },
-      { time: "11pm", imp: 6083706, clicks: 54561, cpm: "₹89.66" },
-    ],
-  },
-];
-
-// Color generation based on CPM value (₹) for the heatmap cells
-const getColorByType = (value: string, type: "Imp" | "Clicks" | "CPM") => {
-  const numericValue = parseFloat(value.replace(/[₹,]/g, ""));
-
-  if (type === "CPM") {
-    if (numericValue >= 80) return "bg-[#AFEFFF] text-[#197DB5]";
-    if (numericValue >= 60) return "bg-[#E0D8F9] text-[#6A39DB]";
-    if (numericValue >= 40) return "bg-[#FFD7EB] text-[#E156E1]";
-    return "bg-[#CFFAF5] text-[#A75DA1]";
-  }
-
-  if (type === "Imp") {
-    if (numericValue >= 6000000) return "bg-[#E0D8F9] text-[#6A39DB]";
-    if (numericValue >= 5000000) return "bg-[#D8CEF8] text-[#6A39DB]";
-    return "bg-[#D0C3F8] text-[#6A39DB]";
-  }
-
-  if (type === "Clicks") {
-    if (numericValue >= 50000) return "bg-[#AFEFFF] text-[#197DB5]";
-    if (numericValue >= 30000) return "bg-[#FFD7EB] text-[#E156E1]";
-    if (numericValue >= 10000) return "bg-[#FFE2F2] text-[#E156E1]";
-    return "bg-[#CFFAF5] text-black";
-  }
-
-  return "bg-white text-black";
-};
+interface HeatMapDay {
+  weekNumber: number;
+  weekday: string;
+  Total_Impressions: number;
+  Total_Clicks: number;
+  Total_CPM: number;
+  Hourly_Data: HourlyData[];
+  min_Impressions: number;
+  max_Impressions: number;
+  min_Clicks: number;
+  max_Clicks: number;
+  min_CPM: number;
+  max_CPM: number;
+}
 
 const HeatmapTable: React.FC = () => {
+  const { showLoading, hideLoading, LoadingModalComponent } = useLoadingModal();
+  const [heatMapData, setHeatMapData] = useState<HeatMapDay[]>([]);
+
+  const postHeatmapList = async () => {
+    const url = "https://coreapi.hectorai.live/api/day-parting/heatmap-list";
+    const headers = {
+      "X-USER-IDENTITY":
+        "U2FsdGVkX1/s3KYiwn1BdNtI1nNitQYbPVGs5G6NloO7PVGlCBTzYpJzAOD/8GaIp30IcvyKuBArXvm5xNN+gOhrSx51l49Ejxan4p7mt1vAUIE6/O277AUuMZVIMsmOtF5YGyaGkyDk9bMjArr3ekLdCKAZu9xXN/b92jqFqXb2jy4tbQbp8UUQxgywAWk1gR4dSb/vaJt4oEIeh0EWuEc4xU2NVdGSedANzYRqUEatsdtRYbNbdkZMt9koQcKO55/Y6fGafYUCztvkASn6i8WyPIxXMq6vf+xo4IYXeOh2WP8WgH/cQgq6V74Fnl82KYtUvGzWVMXpm2rrhsHewJptgJvJY+NinV05HdRJGtXQ1SN3/IhqyJZJhTb/TcO5SkDa8dIGfwgcciGspOofrA==",
+      Authorization:
+        "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2OGI0ZTNhN2Y1YmU4ZDY2MjVlN2I0MiIsImZ1bGxOYW1lIjoiU3lzdGVtIFRlc3QiLCJlbWFpbCI6InRlc3RAZGV2LmNvbSIsInNlc3Npb25JZCI6InJhbmRvbVN0cmluZyIsImlhdCI6MTcyODE0MjA1Nn0._lxRmsgh3qNOnjY_tcm4fg24qa9SDodNTqG1LOaYFVw",
+      "Content-Type": "application/json",
+    };
+
+    const data = {
+      startDate: "2024-01-07",
+      endDate: "2024-01-13",
+      metrics: ["Impressions", "Clicks", "CPM"],
+    };
+
+    try {
+      showLoading();
+      const response = await axios.post(url, data, { headers });
+      console.log("Response data:", response.data.result);
+      setHeatMapData(response.data.result);
+    } catch (error: any) {
+      console.log(error);
+      if (axios.isAxiosError(error)) {
+        console.error(
+          "Error during API call:",
+          error.response ? error.response.data : error.message
+        );
+      } else {
+        console.error("Unexpected error:", error);
+      }
+    } finally {
+      hideLoading();
+    }
+  };
+
+  useEffect(() => {
+    postHeatmapList();
+  }, []);
+
   return (
     <div
       className="w-full overflow-x-auto overflow-y-auto pt-3"
@@ -255,14 +79,14 @@ const HeatmapTable: React.FC = () => {
       <table className="w-full table-auto border-collapse">
         <thead>
           <tr>
-            <th className="p-2 text-center "></th>
+            <th className="p-2 text-center"></th>
             {heatMapData.map((day, index) => (
               <th
                 key={index}
-                className="text-sm text-gray-500 p-2 text-center min-w-[180px]"
+                className="text-sm text-gray-500 p-2 text-center"
                 colSpan={3}
               >
-                {day.day}
+                {day.weekday}
               </th>
             ))}
           </tr>
@@ -281,59 +105,63 @@ const HeatmapTable: React.FC = () => {
         </thead>
 
         <tbody>
-          {heatMapData[0].hours.map((_, hourIndex) => (
-            <tr key={hourIndex}>
-              <td className="p-2 text-sm text-gray-500 text-center">
-                {heatMapData[0].hours[hourIndex].time}
-              </td>
-              {heatMapData.map((day, dayIndex) => (
-                <React.Fragment key={dayIndex}>
-                  <td
-                    key={`imp-${dayIndex}-${hourIndex}`}
-                    className={`p-0 text-sm text-center`}
-                  >
-                    <div
-                      className={`m-0.5 ${getColorByType(
-                        day.hours[hourIndex].imp.toLocaleString(),
-                        "Imp"
-                      )} px-2 py-1 rounded`}
+          {heatMapData.length > 0 &&
+            heatMapData[0].Hourly_Data.map((_, hourIndex) => (
+              <tr key={hourIndex}>
+                <td className="p-2 text-sm text-gray-500 text-center">
+                  {convertTo12HourFormat(
+                    heatMapData[0].Hourly_Data[hourIndex].time_part
+                  )}
+                </td>
+                {heatMapData.map((day, dayIndex) => (
+                  <React.Fragment key={dayIndex}>
+                    <td
+                      key={`imp-${dayIndex}-${hourIndex}`}
+                      className={`p-0 text-sm text-center`}
                     >
-                      {day.hours[hourIndex].imp.toLocaleString()}
-                    </div>
-                  </td>
-                  <td
-                    key={`clicks-${dayIndex}-${hourIndex}`}
-                    className={`p-0 text-sm text-center`}
-                  >
-                    <div
-                      className={`m-0.5 ${getColorByType(
-                        day.hours[hourIndex].clicks.toLocaleString(),
-                        "Clicks"
-                      )} px-2 py-1 rounded`}
+                      <div
+                        className={`m-0.5 ${getColorByType(
+                          day.Hourly_Data[hourIndex].Impressions,
+                          "Imp"
+                        )} px-2 py-1 rounded`}
+                      >
+                        {day.Hourly_Data[hourIndex].Impressions}
+                      </div>
+                    </td>
+                    <td
+                      key={`clicks-${dayIndex}-${hourIndex}`}
+                      className={`p-0 text-sm text-center`}
                     >
-                      {day.hours[hourIndex].clicks.toLocaleString()}
-                    </div>
-                  </td>
+                      <div
+                        className={`m-0.5 ${getColorByType(
+                          day.Hourly_Data[hourIndex].Clicks,
+                          "Clicks"
+                        )} px-2 py-1 rounded`}
+                      >
+                        {day.Hourly_Data[hourIndex].Clicks}
+                      </div>
+                    </td>
 
-                  <td
-                    key={`cpm-${dayIndex}-${hourIndex}`}
-                    className={`p-0 text-sm text-center`}
-                  >
-                    <div
-                      className={`m-0.5 ${getColorByType(
-                        day.hours[hourIndex].cpm,
-                        "CPM"
-                      )} px-2 py-1 rounded`}
+                    <td
+                      key={`cpm-${dayIndex}-${hourIndex}`}
+                      className={`p-0 text-sm text-center`}
                     >
-                      {day.hours[hourIndex].cpm}
-                    </div>
-                  </td>
-                </React.Fragment>
-              ))}
-            </tr>
-          ))}
+                      <div
+                        className={`m-0.5 ${getColorByType(
+                          day.Hourly_Data[hourIndex].CPM,
+                          "CPM"
+                        )} px-2 py-1 rounded`}
+                      >
+                        {day.Hourly_Data[hourIndex].CPM.toFixed(2)}
+                      </div>
+                    </td>
+                  </React.Fragment>
+                ))}
+              </tr>
+            ))}
         </tbody>
       </table>
+      <LoadingModalComponent />
     </div>
   );
 };
