@@ -26,8 +26,8 @@ This project is a React-based dashboard application designed to demonstrate mode
 1. Clone the repository:
 
    ```bash
-   git clone <https://github.com/Sivav15/Performance-Dashboard>
-   cd <Performance-Dashboard>
+   git clone https://github.com/Sivav15/Performance-Dashboard
+   cd Performance-Dashboard
    ```
 
 2. Install dependencies:
