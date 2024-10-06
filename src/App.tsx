@@ -1,7 +1,7 @@
 import React from "react";
 import "./App.css";
-import Dashboard from "./screens/Dashboard";
-import Login from "./screens/Login";
+import Dashboard from "./pages/Dashboard";
+import Login from "./pages/Login";
 import {
   createBrowserRouter,
   Navigate,

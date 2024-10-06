@@ -1,50 +1,53 @@
-# React + TypeScript + Vite
+# React Dashboard Project
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Overview
 
-Currently, two official plugins are available:
+This project is a React-based dashboard application designed to demonstrate modern project architecture, best practices, and essential features for a user-friendly experience. The application includes a login system, a responsive layout with a side menu and top bar, and a main page featuring metrics dropdown, performance line chart, and heat map table.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## Expanding the ESLint configuration
+- **Project Setup**: Well-structured React project with organized folder architecture.
+- **Login Functionality**: User authentication with form validation and session management.
+- **Post-Login Layout**: Responsive side menu and top bar with a logout button.
+- **Main Page Features**:
+  - Metrics dropdown with multiple selection options.
+  - Performance line chart displaying selected metrics.
+  - Heat map table visualizing data intensity.
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## Project Setup
 
-- Configure the top-level `parserOptions` property like this:
+### Prerequisites
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+- Node.js (v14 or later)
+- npm (v6 or later)
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+### Installation
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+1. Clone the repository:
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+   ```bash
+   git clone <https://github.com/Sivav15/Performance-Dashboard>
+   cd <Performance-Dashboard>
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Run the application::
+
+   ```bash
+   npm start
+   ```
+
+### Folder Structure
+
+```bash
+/src
+  /components      # Reusable components
+  /hooks           # Custom hooks
+  /services        # API service functions
+  /utils           # Utility functions
+  /styles          # CSS or styling files
+  /pages           # Page components
 ```

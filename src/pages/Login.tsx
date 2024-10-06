@@ -8,6 +8,7 @@ import { useDispatch } from "react-redux";
 import useLoadingModal from "../hooks/useLoadingModal";
 import { authReducer } from "../features/authSlice";
 import { useNavigate } from "react-router-dom";
+import img from "../assets/background_img.png";
 interface LoginFormValues {
   email: string;
   password: string;
@@ -66,8 +67,11 @@ const Login: React.FC = () => {
     <div
       style={{
         height: "100vh",
+        backgroundImage: `url(${img})`,
+        backgroundSize: "cover",
+        backgroundPosition: "left bottom",
       }}
-      className="flex justify-center items-center bg-gradient-to-r from-purple-100 via-blue-100 to-purple-50"
+      className="flex justify-center items-center"
     >
       <div className="w-full h-full flex flex-col justify-center items-center">
         <div className="mb-5">
@@ -145,7 +149,7 @@ const Login: React.FC = () => {
 
             <button
               type="submit"
-              className="w-full bg-purple-600 text-white py-2 rounded-lg hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-600 focus:ring-opacity-50"
+              className="w-full bg-[#5932EA] text-white py-2 rounded-lg"
             >
               SIGN IN
             </button>
